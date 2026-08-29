@@ -35,7 +35,7 @@ function recognitionCtor(): RecognitionCtor | undefined {
 export const WAKE_WORD_SUPPORTED = typeof window !== "undefined" && Boolean(recognitionCtor());
 
 /** Matches "jose"/"josé" plus the way browsers commonly mishear it. */
-const WAKE = /\b(jos[ée]|hos[ée]|joseph|jose[fy])\b/i;
+const WAKE = /(?<![\p{L}\p{N}_])(jos[ée]|hos[ée]|joseph|jose[fy])(?![\p{L}\p{N}_])/iu;
 
 export type WakeState = "off" | "waiting" | "question";
 
@@ -95,7 +95,7 @@ export function useWakeWord({
         const match = WAKE.exec(text);
         if (!match) continue;
         const rest = text.slice(match.index + match[0].length).replace(/^[,\s]+/, "");
-        if (rest.split(/\s+/).filter(Boolean).length >= 2) ask(rest);
+        if (rest.split(/\s+/).filter(Boolean).length >= 1) ask(rest);
         else {
           awaitingQuestion = true;
           setAwaiting(true);
