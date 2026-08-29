@@ -15,6 +15,7 @@ import {
   type StreakState,
 } from "./streak";
 import { RunMode } from "./RunMode";
+import { CoachTalk } from "./CoachTalk";
 import { CLERK_ENABLED } from "./clerk";
 import "./App.css";
 
@@ -51,7 +52,7 @@ function Home() {
     }
   };
 
-  if (running) return <RunMode onFinish={finishRun} />;
+  if (running) return <RunMode onFinish={finishRun} streak={state.streak} />;
 
   return (
     <>
@@ -82,6 +83,12 @@ function Home() {
       <button className="btn" onClick={handleCheckIn} disabled={done}>
         {done ? "Trained today ✓" : "I trained today (no run)"}
       </button>
+      <CoachTalk
+        elapsedSec={0}
+        distanceKm={0}
+        paceMinPerKm={null}
+        streak={state.streak}
+      />
     </>
   );
 }

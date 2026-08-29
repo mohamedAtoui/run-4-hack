@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { pickQuote, type Mood } from "./coach";
 import { speak } from "./voice";
 import { useRun } from "./useRun";
+import { CoachTalk } from "./CoachTalk";
 
 const COMMENT_INTERVAL_SEC = 45;
 const FAST_PACE = 5.5; // min/km — faster than this earns praise
@@ -20,7 +21,13 @@ function fmtPace(p: number | null): string {
   return `${m}:${s.toString().padStart(2, "0")} /km`;
 }
 
-export function RunMode({ onFinish }: { onFinish: () => void }) {
+export function RunMode({
+  onFinish,
+  streak,
+}: {
+  onFinish: () => void;
+  streak: number;
+}) {
   const { stats, start, stop } = useRun();
   const [lastLine, setLastLine] = useState("");
   const lastCommentAt = useRef(0);
@@ -75,6 +82,12 @@ export function RunMode({ onFinish }: { onFinish: () => void }) {
         <p className="gps-error">GPS: {stats.gpsError} — pace commentary limited.</p>
       )}
       {lastLine && <p className="coach-line">“{lastLine}”</p>}
+      <CoachTalk
+        elapsedSec={stats.elapsedSec}
+        distanceKm={stats.distanceKm}
+        paceMinPerKm={stats.paceMinPerKm}
+        streak={streak}
+      />
       <button className="btn btn-danger" onClick={finish}>
         Finish run
       </button>

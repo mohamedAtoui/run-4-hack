@@ -1,9 +1,4 @@
-const ELEVENLABS_API_KEY = import.meta.env.VITE_ELEVENLABS_API_KEY as
-  | string
-  | undefined;
-const ELEVENLABS_VOICE_ID =
-  (import.meta.env.VITE_ELEVENLABS_VOICE_ID as string | undefined) ??
-  "JBFqnCBsd6RMkjVDRZzb";
+import { ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID } from "./elevenlabs";
 
 let currentAudio: HTMLAudioElement | null = null;
 

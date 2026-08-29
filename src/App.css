@@ -107,6 +107,25 @@
   text-align: center;
 }
 
+.coach-talk {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.coach-status {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #8b93a3;
+}
+
+.coach-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #8b93a3;
+  text-align: center;
+}
+
 .gps-error {
   color: #f59e0b;
   font-size: 0.85rem;
