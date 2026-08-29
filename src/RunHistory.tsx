@@ -1,17 +1,5 @@
 import type { RunRecord } from "./history";
-
-function fmtDuration(sec: number): string {
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-  return `${m}:${s.toString().padStart(2, "0")}`;
-}
-
-function fmtPace(p: number | null): string {
-  if (p === null) return "--:--";
-  const m = Math.floor(p);
-  const s = Math.round((p - m) * 60);
-  return `${m}:${s.toString().padStart(2, "0")}`;
-}
+import { fmtDuration, fmtPace } from "./format";
 
 export function RunHistory({ runs }: { runs: RunRecord[] }) {
   if (runs.length === 0) return null;

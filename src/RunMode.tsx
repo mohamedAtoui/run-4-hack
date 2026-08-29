@@ -4,23 +4,11 @@ import { speak } from "./voice";
 import { useRun } from "./useRun";
 import { CoachTalk } from "./CoachTalk";
 import type { RunRecord } from "./history";
+import { fmtDuration, fmtPace } from "./format";
 
 const COMMENT_INTERVAL_SEC = 45;
 const FAST_PACE = 5.5; // min/km — faster than this earns praise
 const SLOW_PACE = 8; // min/km — slower than this gets roasted
-
-function fmtTime(sec: number): string {
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-  return `${m}:${s.toString().padStart(2, "0")}`;
-}
-
-function fmtPace(p: number | null): string {
-  if (p === null) return "--:--";
-  const m = Math.floor(p);
-  const s = Math.round((p - m) * 60);
-  return `${m}:${s.toString().padStart(2, "0")} /km`;
-}
 
 export function RunMode({
   onFinish,
@@ -75,7 +63,7 @@ export function RunMode({
     <div className="run-mode">
       <div className="run-stats">
         <div className="stat">
-          <span className="stat-value">{fmtTime(stats.elapsedSec)}</span>
+          <span className="stat-value">{fmtDuration(stats.elapsedSec)}</span>
           <span className="stat-label">time</span>
         </div>
         <div className="stat">
@@ -83,7 +71,9 @@ export function RunMode({
           <span className="stat-label">km</span>
         </div>
         <div className="stat">
-          <span className="stat-value">{fmtPace(stats.paceMinPerKm)}</span>
+          <span className="stat-value">
+            {fmtPace(stats.paceMinPerKm)} /km
+          </span>
           <span className="stat-label">pace</span>
         </div>
       </div>

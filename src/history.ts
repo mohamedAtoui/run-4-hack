@@ -10,13 +10,19 @@ const GOAL_KEY = "mourinho-weekly-goal";
 
 export const DEFAULT_WEEKLY_GOAL_KM = 20;
 
+/** Runs older than the current week are pruned beyond this many records. */
+const HISTORY_LIMIT = 50;
+
 export function loadRuns(): RunRecord[] {
   const raw = localStorage.getItem(RUNS_KEY);
   return raw ? (JSON.parse(raw) as RunRecord[]) : [];
 }
 
 export function saveRun(run: RunRecord): RunRecord[] {
-  const runs = [run, ...loadRuns()].slice(0, 50);
+  const weekStart = startOfWeek().getTime();
+  const runs = [run, ...loadRuns()].filter(
+    (r, i) => i < HISTORY_LIMIT || new Date(r.date).getTime() >= weekStart,
+  );
   localStorage.setItem(RUNS_KEY, JSON.stringify(runs));
   return runs;
 }

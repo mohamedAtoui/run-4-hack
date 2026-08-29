@@ -19,6 +19,7 @@ import { CoachTalk } from "./CoachTalk";
 import { RunHistory } from "./RunHistory";
 import { WeeklyGoal } from "./WeeklyGoal";
 import { weeklyLine } from "./weekly";
+import { useWeekBoundary } from "./useWeekBoundary";
 import {
   loadRuns,
   loadWeeklyGoal,
@@ -46,7 +47,8 @@ function Home() {
   const [runs, setRuns] = useState<RunRecord[]>(loadRuns);
   const [goalKm, setGoalKm] = useState<number>(loadWeeklyGoal);
 
-  const doneKm = weeklyKm(runs);
+  const weekStart = useWeekBoundary();
+  const doneKm = weeklyKm(runs, weekStart);
 
   const done = checkedInToday(state);
 
@@ -63,7 +65,7 @@ function Home() {
     const nextRuns = saveRun(run);
     setRuns(nextRuns);
     if (!checkedInToday(state)) setState(checkIn(state));
-    setQuote(weeklyLine(weeklyKm(nextRuns), goalKm));
+    setQuote(weeklyLine(weeklyKm(nextRuns, weekStart), goalKm));
   };
 
   const changeGoal = (km: number) => setGoalKm(saveWeeklyGoal(km));
