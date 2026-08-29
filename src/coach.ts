@@ -8,7 +8,10 @@ export type Mood =
   | "paceFast"
   | "paceSlow"
   | "paceSteady"
-  | "runFinish";
+  | "runFinish"
+  | "weekAhead"
+  | "weekBehind"
+  | "weekDone";
 
 const QUOTES: Record<Mood, string[]> = {
   greeting: [
@@ -66,6 +69,18 @@ const QUOTES: Record<Mood, string[]> = {
     "Finished. You survived me for the whole session. That is the real achievement.",
     "The run is done. Go home, drink water, and think about how lucky you are to have me.",
     "Full time. Result: you, one. Sofa, nil.",
+  ],
+  weekAhead: [
+    "You are ahead of your weekly target. Do not tell the others. Let them discover it.",
+    "Ahead of schedule. This is what happens when you listen to a top, top coach.",
+  ],
+  weekBehind: [
+    "Your weekly target is looking at you. It is not impressed. Neither am I.",
+    "There are kilometres missing this week. I do not accept a bad week. I accept a response.",
+  ],
+  weekDone: [
+    "Weekly target complete. Now I have to find something new to complain about.",
+    "Target reached. You may celebrate for eleven seconds, then we go again.",
   ],
 };
 

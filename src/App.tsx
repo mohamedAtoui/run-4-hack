@@ -16,6 +16,17 @@ import {
 } from "./streak";
 import { RunMode } from "./RunMode";
 import { CoachTalk } from "./CoachTalk";
+import { RunHistory } from "./RunHistory";
+import { WeeklyGoal } from "./WeeklyGoal";
+import { weeklyLine } from "./weekly";
+import {
+  loadRuns,
+  loadWeeklyGoal,
+  saveRun,
+  saveWeeklyGoal,
+  weeklyKm,
+  type RunRecord,
+} from "./history";
 import { CLERK_ENABLED } from "./clerk";
 import "./App.css";
 
@@ -32,6 +43,10 @@ function Home() {
   const [state, setState] = useState<StreakState>(loadState);
   const [running, setRunning] = useState(false);
   const [quote, setQuote] = useState(() => pickQuote(moodFor(loadState())));
+  const [runs, setRuns] = useState<RunRecord[]>(loadRuns);
+  const [goalKm, setGoalKm] = useState<number>(loadWeeklyGoal);
+
+  const doneKm = weeklyKm(runs);
 
   const done = checkedInToday(state);
 
@@ -43,14 +58,15 @@ function Home() {
     void speak(line);
   };
 
-  const finishRun = () => {
+  const finishRun = (run: RunRecord) => {
     setRunning(false);
-    if (!checkedInToday(state)) {
-      const next = checkIn(state);
-      setState(next);
-      setQuote(pickQuote(moodFor(next)));
-    }
+    const nextRuns = saveRun(run);
+    setRuns(nextRuns);
+    if (!checkedInToday(state)) setState(checkIn(state));
+    setQuote(weeklyLine(weeklyKm(nextRuns), goalKm));
   };
+
+  const changeGoal = (km: number) => setGoalKm(saveWeeklyGoal(km));
 
   if (running) return <RunMode onFinish={finishRun} streak={state.streak} />;
 
@@ -77,6 +93,8 @@ function Home() {
         </div>
       </div>
 
+      <WeeklyGoal doneKm={doneKm} goalKm={goalKm} onChangeGoal={changeGoal} />
+
       <button className="btn btn-primary" onClick={() => setRunning(true)}>
         Start a run 🏃
       </button>
@@ -89,6 +107,7 @@ function Home() {
         paceMinPerKm={null}
         streak={state.streak}
       />
+      <RunHistory runs={runs} />
     </>
   );
 }
