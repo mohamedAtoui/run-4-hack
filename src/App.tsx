@@ -65,7 +65,7 @@ function Home() {
     const nextRuns = saveRun(run);
     setRuns(nextRuns);
     if (!checkedInToday(state)) setState(checkIn(state));
-    setQuote(weeklyLine(weeklyKm(nextRuns, weekStart), goalKm));
+    setQuote(weeklyLine(weeklyKm(nextRuns), goalKm));
   };
 
   const changeGoal = (km: number) => setGoalKm(saveWeeklyGoal(km));
