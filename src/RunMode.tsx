@@ -7,7 +7,8 @@ import type { RunRecord } from "./history";
 import { fmtDuration, fmtPace } from "./format";
 import { CoachFace } from "./CoachFace";
 import { adviseOn } from "./advice";
-import { useWakeWord, WAKE_WORD_SUPPORTED } from "./useWakeWord";
+import { useWakeWord } from "./useWakeWord";
+import { MicToggle } from "./MicToggle";
 
 const COMMENT_INTERVAL_SEC = 45;
 const FAST_PACE = 5.5; // min/km — faster than this earns praise
@@ -27,6 +28,7 @@ export function RunMode({
   const [speaking, setSpeaking] = useState(false);
   const [question, setQuestion] = useState("");
   const [finishing, setFinishing] = useState(false);
+  const [micOn, setMicOn] = useState(false);
   const lastCommentAt = useRef(0);
   const speakingRef = useRef(false);
 
@@ -46,7 +48,7 @@ export function RunMode({
   const say = (nextMood: Mood) => void deliver(nextMood, pickQuote(nextMood));
 
   const wake = useWakeWord({
-    enabled: true,
+    enabled: micOn,
     paused: speaking,
     onQuestion: (asked) => {
       setQuestion(asked);
@@ -98,7 +100,7 @@ export function RunMode({
 
   return (
     <div className="run-mode">
-      <div className="run-stats">
+      <div className="card run-stats">
         <div className="stat">
           <span className="stat-value">{fmtDuration(stats.elapsedSec)}</span>
           <span className="stat-label">time</span>
@@ -117,31 +119,32 @@ export function RunMode({
       {stats.gpsError && (
         <p className="gps-error">GPS: {stats.gpsError} — pace commentary limited.</p>
       )}
-      <CoachFace mood={mood} />
-      {lastLine && <p className="coach-line">“{lastLine}”</p>}
-      {WAKE_WORD_SUPPORTED ? (
-        <p className="wake-status">
-          {wake.state === "question"
-            ? "Listening… ask him anything"
-            : speaking
-              ? "He's talking. Interrupting is rude."
-              : "Say “José” to ask the coach something"}
-          {question && <span className="wake-heard"> — you asked: “{question}”</span>}
-        </p>
-      ) : (
-        <p className="coach-hint">
-          Wake word needs a browser with speech recognition (Chrome).
-        </p>
-      )}
+      <div className="coach-card">
+        <CoachFace mood={mood} />
+        {lastLine && <p className="coach-line">“{lastLine}”</p>}
+      </div>
+      <MicToggle
+        listening={micOn}
+        onToggle={() => setMicOn((on) => !on)}
+        state={wake.state}
+        speaking={speaking}
+        question={question}
+      />
       <CoachTalk
         elapsedSec={stats.elapsedSec}
         distanceKm={stats.distanceKm}
         paceMinPerKm={stats.paceMinPerKm}
         streak={streak}
       />
-      <button className="btn btn-danger" onClick={finish} disabled={finishing}>
-        {finishing ? "Wrapping up…" : "Finish run"}
-      </button>
+      <div className="action-bar">
+        <button
+          className="btn btn-danger"
+          onClick={finish}
+          disabled={finishing}
+        >
+          {finishing ? "Wrapping up…" : "Finish run"}
+        </button>
+      </div>
     </div>
   );
 }
