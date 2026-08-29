@@ -20,6 +20,29 @@ cp .env.example .env   # fill in keys (optional)
 npm run dev
 ```
 
+### ElevenLabs API key permissions
+
+ElevenLabs keys are scoped per-permission, and a freshly created key may have
+none enabled. The coach needs:
+
+| Permission | Used by | Without it |
+| --- | --- | --- |
+| `text_to_speech` | spoken quotes and run commentary | every call 401s and the app falls back to the browser voice |
+
+The speech-to-speech coach does **not** need a key as long as the agent is
+public (see below) — the browser gets its own short-lived token.
+
+To check a key before blaming the app:
+
+```bash
+curl -s -o /dev/null -w '%{http_code}\n' \
+  -H "xi-api-key: $VITE_ELEVENLABS_API_KEY" \
+  https://api.elevenlabs.io/v1/user
+```
+
+`200` means the key is good; `401` means it is missing permissions, and the
+response body names which one.
+
 ### ElevenLabs agent setup
 
 The speech-to-speech coach sends `src/persona.ts` to the agent as a **session

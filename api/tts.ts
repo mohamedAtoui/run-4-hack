@@ -59,10 +59,17 @@ export default async function handler(req: Request): Promise<Response> {
   );
 
   if (!upstream.ok) {
-    // Pass the status through, but never the upstream body: it can echo
-    // account details back to the browser.
-    return new Response(`ElevenLabs error ${upstream.status}`, {
-      status: upstream.status === 401 ? 500 : upstream.status,
+    // Pass the status through, plus the reason when ElevenLabs gives a
+    // machine-readable one. `detail.status` is an enum-like string such as
+    // "missing_permissions" or "quota_exceeded", and for auth failures the
+    // message names the missing permission - both are about the key, not the
+    // account, so they are safe to surface and are the only way a caller can
+    // tell a misconfigured key from an outage. Nothing else is forwarded.
+    // A 401 here is *our* key failing upstream, not the caller being
+    // unauthenticated, so report it as a gateway failure rather than passing
+    // 401 down to the browser.
+    return new Response(`ElevenLabs error ${upstream.status}: ${await failureReason(upstream)}`, {
+      status: upstream.status === 401 ? 502 : upstream.status,
     });
   }
 
@@ -73,4 +80,26 @@ export default async function handler(req: Request): Promise<Response> {
       "Cache-Control": "no-store",
     },
   });
+}
+
+/**
+ * Extracts a short, non-sensitive reason from an ElevenLabs error response.
+ * Never returns the raw body, which can carry account details.
+ */
+async function failureReason(res: Response): Promise<string> {
+  try {
+    const body: { detail?: { status?: unknown; message?: unknown; type?: unknown } } =
+      await res.json();
+    const detail = body.detail ?? {};
+    const status = typeof detail.status === "string" ? detail.status : null;
+    // The message is only echoed for auth failures, where it names the
+    // permission the key is missing.
+    const message =
+      detail.type === "authentication_error" && typeof detail.message === "string"
+        ? detail.message.slice(0, 200)
+        : null;
+    return [status, message].filter(Boolean).join(" - ") || "no reason given";
+  } catch {
+    return "no reason given";
+  }
 }
