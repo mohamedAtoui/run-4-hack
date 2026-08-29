@@ -3,6 +3,7 @@ import { pickQuote, type Mood } from "./coach";
 import { speak } from "./voice";
 import { useRun } from "./useRun";
 import { CoachTalk } from "./CoachTalk";
+import type { RunRecord } from "./history";
 
 const COMMENT_INTERVAL_SEC = 45;
 const FAST_PACE = 5.5; // min/km — faster than this earns praise
@@ -25,7 +26,7 @@ export function RunMode({
   onFinish,
   streak,
 }: {
-  onFinish: () => void;
+  onFinish: (run: RunRecord) => void;
   streak: number;
 }) {
   const { stats, start, stop } = useRun();
@@ -59,7 +60,15 @@ export function RunMode({
   const finish = () => {
     stop();
     say("runFinish");
-    onFinish();
+    onFinish({
+      date: new Date().toISOString(),
+      distanceKm: stats.distanceKm,
+      durationSec: stats.elapsedSec,
+      paceMinPerKm:
+        stats.distanceKm > 0
+          ? stats.elapsedSec / 60 / stats.distanceKm
+          : null,
+    });
   };
 
   return (
