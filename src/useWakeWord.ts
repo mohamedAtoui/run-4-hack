@@ -37,7 +37,7 @@ export const WAKE_WORD_SUPPORTED = typeof window !== "undefined" && Boolean(reco
 /** Matches "jose"/"josé" plus the way browsers commonly mishear it. */
 const WAKE = /(?<![\p{L}\p{N}_])(jos[ée]|hos[ée]|joseph|jose[fy])(?![\p{L}\p{N}_])/iu;
 
-export type WakeState = "off" | "waiting" | "question";
+export type WakeState = "off" | "waiting" | "question" | "denied";
 
 /**
  * Listens continuously for the wake word "José"; whatever is said after it is
@@ -54,6 +54,7 @@ export function useWakeWord({
   onQuestion: (question: string) => void;
 }): { state: WakeState; heard: string } {
   const [awaiting, setAwaiting] = useState(false);
+  const [denied, setDenied] = useState(false);
   const [heard, setHeard] = useState("");
   const askedRef = useRef(onQuestion);
 
@@ -103,8 +104,13 @@ export function useWakeWord({
       }
     };
 
-    recognition.onerror = () => {
-      // "no-speech"/"network" end the session; onend restarts it.
+    recognition.onerror = (event) => {
+      // "no-speech"/"network" end the session and onend restarts it, but a
+      // refused microphone would restart forever.
+      if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+        stopped = true;
+        setDenied(true);
+      }
     };
     recognition.onend = () => {
       if (!stopped) recognition.start();
@@ -117,9 +123,16 @@ export function useWakeWord({
       recognition.onend = null;
       recognition.abort();
       setAwaiting(false);
+      setDenied(false);
     };
   }, [listening]);
 
-  const state: WakeState = !listening ? "off" : awaiting ? "question" : "waiting";
+  const state: WakeState = denied
+    ? "denied"
+    : !listening
+      ? "off"
+      : awaiting
+        ? "question"
+        : "waiting";
   return { state, heard };
 }

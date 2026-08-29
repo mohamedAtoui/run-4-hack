@@ -30,6 +30,9 @@ import {
   type RunRecord,
 } from "./history";
 import { CLERK_ENABLED } from "./clerk";
+import { MicToggle } from "./MicToggle";
+import { useWakeWord } from "./useWakeWord";
+import { adviseOn } from "./advice";
 import "./App.css";
 
 function moodFor(state: StreakState): Mood {
@@ -48,6 +51,24 @@ function Home() {
   const [quote, setQuote] = useState(() => pickQuote(moodFor(loadState())));
   const [runs, setRuns] = useState<RunRecord[]>(loadRuns);
   const [goalKm, setGoalKm] = useState<number>(loadWeeklyGoal);
+  const [micOn, setMicOn] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
+  const [question, setQuestion] = useState("");
+
+  const wake = useWakeWord({
+    enabled: micOn,
+    paused: speaking,
+    onQuestion: (asked) => {
+      setQuestion(asked);
+      const advice = adviseOn(asked);
+      setMood(advice.mood);
+      setQuote(advice.line);
+      setSpeaking(true);
+      void speak(advice.line)
+        .catch(() => undefined)
+        .finally(() => setSpeaking(false));
+    },
+  });
 
   const weekStart = useWeekBoundary();
   const doneKm = weeklyKm(runs, weekStart);
@@ -86,7 +107,15 @@ function Home() {
         <p className="coach-name">— José Mourinho</p>
       </div>
 
-      <div className="streak-row">
+      <MicToggle
+        listening={micOn}
+        onToggle={() => setMicOn((on) => !on)}
+        state={wake.state}
+        speaking={speaking}
+        question={question}
+      />
+
+      <div className="card streak-row">
         <div className="stat">
           <span className="stat-value">{state.streak} 🔥</span>
           <span className="stat-label">streak</span>
@@ -101,21 +130,29 @@ function Home() {
         </div>
       </div>
 
-      <WeeklyGoal doneKm={doneKm} goalKm={goalKm} onChangeGoal={changeGoal} />
+      <div className="card">
+        <WeeklyGoal doneKm={doneKm} goalKm={goalKm} onChangeGoal={changeGoal} />
+      </div>
 
-      <button className="btn btn-primary" onClick={() => setRunning(true)}>
-        Start a run 🏃
-      </button>
-      <button className="btn" onClick={handleCheckIn} disabled={done}>
-        {done ? "Trained today ✓" : "I trained today (no run)"}
-      </button>
+      <div className="action-bar">
+        <button className="btn btn-primary" onClick={() => setRunning(true)}>
+          Start a run 🏃
+        </button>
+        <button className="btn" onClick={handleCheckIn} disabled={done}>
+          {done ? "Trained today ✓" : "I trained today (no run)"}
+        </button>
+      </div>
       <CoachTalk
         elapsedSec={0}
         distanceKm={0}
         paceMinPerKm={null}
         streak={state.streak}
       />
-      <RunHistory runs={runs} />
+      {runs.length > 0 && (
+        <div className="card">
+          <RunHistory runs={runs} />
+        </div>
+      )}
     </>
   );
 }
@@ -124,7 +161,9 @@ export default function App() {
   return (
     <div className="app">
       <header className="header">
-        <h1>Special One Run Club</h1>
+        <h1>
+          Special One <span>Run Club</span>
+        </h1>
         {CLERK_ENABLED && (
           <SignedIn>
             <UserButton />
