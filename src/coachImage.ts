@@ -1,25 +1,25 @@
 import type { Mood } from "./coach";
-import asleep from "./assets/mou-asleep.webp";
-import headphones from "./assets/mou-headphones.webp";
-import presser from "./assets/mou-presser.webp";
-import shush from "./assets/mou-shush.webp";
-import smirk from "./assets/mou-smirk.webp";
-import stare from "./assets/mou-stare.webp";
-import steady from "./assets/mou-steady.webp";
+import applause from "./assets/coach-applause.webp";
+import asleep from "./assets/coach-asleep.webp";
+import despair from "./assets/coach-despair.webp";
+import proud from "./assets/coach-proud.webp";
+import rant from "./assets/coach-rant.webp";
+import smirk from "./assets/coach-smirk.webp";
+import stare from "./assets/coach-stare.webp";
 
 const IMAGES: Record<Mood, string> = {
-  greeting: presser,
+  greeting: stare,
   checkin: smirk,
-  streak: shush,
-  milestone: shush,
+  streak: proud,
+  milestone: applause,
   missed: asleep,
-  runStart: stare,
-  paceFast: smirk,
-  paceSlow: headphones,
-  paceSteady: steady,
-  runFinish: smirk,
-  weekAhead: shush,
-  weekBehind: headphones,
+  runStart: rant,
+  paceFast: proud,
+  paceSlow: despair,
+  paceSteady: stare,
+  runFinish: applause,
+  weekAhead: proud,
+  weekBehind: despair,
   weekDone: smirk,
 };
 

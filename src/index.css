@@ -6,6 +6,7 @@
   --red: #7a1f1f;
   --cream: #f7efe0;
   --muted: #6b7a6a;
+  --ring-track: #d6c7a8;
 
   /* Surfaces and body text flip with the theme; --cream stays the ink on green. */
   --surface: var(--cream);
@@ -28,6 +29,7 @@
     --red: #b83f3f;
     --surface: #181f19;
     --muted: #93a291;
+    --ring-track: #34412f;
     --ink: #ece3d0;
 
     color-scheme: dark;

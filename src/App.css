@@ -106,7 +106,7 @@
 }
 
 .ring-track {
-  stroke: var(--beige-dark);
+  stroke: var(--ring-track);
 }
 
 .ring-fill {
@@ -124,11 +124,12 @@
   align-self: center;
 }
 
-/* Sits inside the ring, so the two rims don't read as one thick border. */
+/* The illustration draws its own rim, so no border here: three concentric
+   circles (track, avatar border, artwork edge) read as mud. */
 .coach-ring .coach-avatar {
-  width: 146px;
-  height: 146px;
-  border-color: var(--green);
+  width: 152px;
+  height: 152px;
+  border: none;
 }
 
 .coach-line {
