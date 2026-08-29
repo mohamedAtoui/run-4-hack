@@ -1,3 +1,4 @@
+import { Icon } from "./Icon";
 import { WAKE_WORD_SUPPORTED, type WakeState } from "./useWakeWord";
 
 /**
@@ -45,7 +46,7 @@ export function MicToggle({
         aria-pressed={listening}
         aria-label={listening ? "Stop listening" : "Start listening"}
       >
-        <span aria-hidden="true">{listening ? "🎙️" : "🔇"}</span>
+        <Icon name={listening ? "mic" : "mic-off"} size={26} />
       </button>
       <p className="mic-status">
         {status}

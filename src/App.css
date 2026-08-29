@@ -322,7 +322,7 @@
 }
 
 .run-splits .stat-label {
-  color: var(--beige-dark);
+  color: var(--on-green-muted);
 }
 
 .run-coach .coach-avatar {
@@ -462,4 +462,132 @@
   color: var(--red);
   font-size: 0.85rem;
   margin: 0;
+}
+
+/* --- crest -------------------------------------------------------------- */
+
+.crest {
+  flex: none;
+  border-radius: 50%;
+}
+
+/* --- streak flame ------------------------------------------------------- */
+
+.stat-streak {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.stat-streak svg {
+  color: var(--red);
+}
+
+/* Icons inside buttons sit on the text baseline row, not above it. */
+.btn svg,
+.tab svg {
+  flex: none;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* --- run hero: mown pitch behind the clock ------------------------------ */
+
+.run-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* Low opacity on purpose: the sheet came back with far more stripe contrast
+   than asked for, and at full strength it fights the numbers. */
+.run-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: url("./assets/pitch.webp") center / cover no-repeat;
+  opacity: 0.35;
+}
+
+/* --- finish screen ------------------------------------------------------ */
+
+.run-finish {
+  position: relative;
+  flex: 1;
+  margin: 0 -1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  padding: 1.5rem 1.25rem calc(2rem + env(safe-area-inset-bottom));
+  text-align: center;
+  background: var(--green-deep);
+  overflow: hidden;
+  animation: tab-in 320ms ease-out;
+}
+
+.finish-art {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 56%;
+  object-fit: cover;
+  object-position: center 38%;
+  z-index: 0;
+}
+
+/* The art is dark at the bottom already; this just guarantees the numbers
+   clear it whatever the crop does at other viewport heights. */
+.run-finish::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    transparent 30%,
+    rgba(10, 19, 13, 0.6) 46%,
+    var(--green-deep) 58%
+  );
+}
+
+.run-finish > :not(.finish-art) {
+  position: relative;
+  z-index: 2;
+}
+
+.finish-clock {
+  font-size: clamp(3rem, 17vw, 4.25rem);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--cream);
+  font-variant-numeric: tabular-nums;
+}
+
+.finish-dist {
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--red);
+}
+
+.finish-line {
+  margin-top: 0.75rem;
+  color: var(--cream);
+  font-size: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .run-finish {
+    animation: none;
+  }
 }

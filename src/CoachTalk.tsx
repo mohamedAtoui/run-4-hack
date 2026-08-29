@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { Icon } from "./Icon";
 import { ConversationProvider, useConversation } from "@elevenlabs/react";
 import {
   CONVERSATION_ENABLED,
@@ -89,7 +90,13 @@ function CoachTalkSession(props: CoachTalkProps) {
         className={`btn ${connected ? "btn-danger" : ""}`}
         onClick={connected ? stop : start}
       >
-        {connected ? "End the conversation" : "Talk to the coach 🎙️"}
+        {connected ? (
+          "End the conversation"
+        ) : (
+          <>
+            <Icon name="mic" size={20} /> Talk to the coach
+          </>
+        )}
       </button>
       {connected && (
         <p className="coach-status">

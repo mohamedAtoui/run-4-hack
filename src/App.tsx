@@ -35,6 +35,8 @@ import { useWakeWord, type WakeState } from "./useWakeWord";
 import { adviseOn } from "./advice";
 import { TabBar, type Tab } from "./TabBar";
 import { buzz } from "./haptics";
+import { Icon } from "./Icon";
+import crest from "./assets/crest.webp";
 import "./App.css";
 
 function moodFor(state: StreakState): Mood {
@@ -196,7 +198,10 @@ function HomeTab({
 
       <div className="card streak-row">
         <div className="stat">
-          <span className="stat-value">{state.streak} 🔥</span>
+          <span className="stat-value stat-streak">
+            {state.streak}
+            <Icon name="flame" size={20} />
+          </span>
           <span className="stat-label">streak</span>
         </div>
         <div className="stat">
@@ -238,7 +243,7 @@ function RunTab({
       </div>
       <div className="action-bar">
         <button className="btn btn-primary btn-hero" onClick={onStart}>
-          Start a run 🏃
+          <Icon name="runner" size={22} /> Start a run
         </button>
       </div>
       <CoachTalk
@@ -273,6 +278,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="header">
+        <img className="crest" src={crest} alt="" width={34} height={34} />
         <h1>
           Special One <span>Run Club</span>
         </h1>

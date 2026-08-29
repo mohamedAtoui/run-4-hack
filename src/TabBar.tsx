@@ -1,9 +1,11 @@
+import { Icon, type IconName } from "./Icon";
+
 export type Tab = "home" | "run" | "history";
 
-const TABS: { id: Tab; icon: string; label: string }[] = [
-  { id: "home", icon: "🏠", label: "Coach" },
-  { id: "run", icon: "🏃", label: "Run" },
-  { id: "history", icon: "📈", label: "History" },
+const TABS: { id: Tab; icon: IconName; label: string }[] = [
+  { id: "home", icon: "whistle", label: "Coach" },
+  { id: "run", icon: "runner", label: "Run" },
+  { id: "history", icon: "chart", label: "History" },
 ];
 
 export function TabBar({
@@ -23,9 +25,7 @@ export function TabBar({
           aria-current={tab === id ? "page" : undefined}
           onClick={() => onSelect(id)}
         >
-          <span className="tab-icon" aria-hidden="true">
-            {icon}
-          </span>
+          <Icon name={icon} size={22} />
           {label}
         </button>
       ))}

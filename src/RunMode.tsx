@@ -11,6 +11,7 @@ import { useWakeWord } from "./useWakeWord";
 import { MicToggle } from "./MicToggle";
 import { useWakeLock } from "./useWakeLock";
 import { buzz } from "./haptics";
+import celebration from "./assets/celebration.webp";
 
 const COMMENT_INTERVAL_SEC = 45;
 const FAST_PACE = 5.5; // min/km — faster than this earns praise
@@ -102,6 +103,19 @@ export function RunMode({
     );
     void Promise.race([spoken, capped]).then(() => onFinish(run));
   };
+
+  // The sign-off already holds the screen for a beat; give that beat a picture
+  // instead of a disabled button.
+  if (finishing) {
+    return (
+      <div className="run-finish">
+        <img className="finish-art" src={celebration} alt="" />
+        <span className="finish-clock">{fmtDuration(stats.elapsedSec)}</span>
+        <span className="finish-dist">{stats.distanceKm.toFixed(2)} km</span>
+        {lastLine && <p className="coach-line finish-line">“{lastLine}”</p>}
+      </div>
+    );
+  }
 
   return (
     <div className="run-mode">

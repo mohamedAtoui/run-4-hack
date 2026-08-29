@@ -7,6 +7,8 @@
   --cream: #f7efe0;
   --muted: #6b7a6a;
   --ring-track: #d6c7a8;
+  /* Legible on --green in both themes; --beige-dark is not, in dark. */
+  --on-green-muted: #cbdcc9;
 
   /* Surfaces and body text flip with the theme; --cream stays the ink on green. */
   --surface: var(--cream);
@@ -30,6 +32,7 @@
     --surface: #181f19;
     --muted: #93a291;
     --ring-track: #34412f;
+    --on-green-muted: #cfe0cb;
     --ink: #ece3d0;
 
     color-scheme: dark;
