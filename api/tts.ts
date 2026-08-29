@@ -6,7 +6,12 @@
  */
 export const config = { runtime: "edge" };
 
-const DEFAULT_VOICE_ID = "kIR0B1kiG8aJ0Uv9URKI";
+/**
+ * Stock ElevenLabs voice ("Bill"). Used only when neither the caller nor
+ * ELEVENLABS_VOICE_ID supplies one; stock voices exist on every account, so
+ * this cannot fail the way a missing custom voice ID does.
+ */
+const FALLBACK_VOICE_ID = "pqHfZKP75CvOlQylNhV4";
 const MAX_TEXT_LENGTH = 1000;
 
 export default async function handler(req: Request): Promise<Response> {
@@ -37,10 +42,11 @@ export default async function handler(req: Request): Promise<Response> {
     });
   }
 
+  // Caller-supplied ID wins, then the server default, then the stock voice.
   const voiceId =
     typeof body.voiceId === "string" && /^[A-Za-z0-9]+$/.test(body.voiceId)
       ? body.voiceId
-      : DEFAULT_VOICE_ID;
+      : (process.env.ELEVENLABS_VOICE_ID ?? FALLBACK_VOICE_ID);
 
   const upstream = await fetch(
     `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
