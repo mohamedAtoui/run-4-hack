@@ -41,14 +41,18 @@ export async function fetchMeme(mood: Mood): Promise<string | null> {
   url.searchParams.set("limit", "15");
   url.searchParams.set("rating", "pg-13");
 
-  const res = await fetch(url);
-  if (!res.ok) return null;
-  const body = (await res.json()) as GiphyResponse;
-  const gifs = body.data ?? [];
-  if (gifs.length === 0) return null;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const body = (await res.json()) as GiphyResponse;
+    const gifs = body.data ?? [];
+    if (gifs.length === 0) return null;
 
-  const pick = gifs[Math.floor(Math.random() * gifs.length)];
-  const src = pick.images.downsized_medium.url;
-  cache.set(mood, src);
-  return src;
+    const pick = gifs[Math.floor(Math.random() * gifs.length)];
+    const src = pick.images.downsized_medium.url;
+    cache.set(mood, src);
+    return src;
+  } catch {
+    return null;
+  }
 }
