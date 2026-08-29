@@ -10,6 +10,7 @@ import { adviseOn } from "./advice";
 import { useWakeWord } from "./useWakeWord";
 import { MicToggle } from "./MicToggle";
 import { useWakeLock } from "./useWakeLock";
+import { buzz } from "./haptics";
 
 const COMMENT_INTERVAL_SEC = 45;
 const FAST_PACE = 5.5; // min/km — faster than this earns praise
@@ -82,6 +83,7 @@ export function RunMode({
 
   // Stays mounted until the sign-off finishes so his last reaction is actually seen.
   const finish = () => {
+    buzz("finish");
     stop();
     setFinishing(true);
     const run: RunRecord = {
@@ -125,7 +127,10 @@ export function RunMode({
       </div>
       <MicToggle
         listening={micOn}
-        onToggle={() => setMicOn((on) => !on)}
+        onToggle={() => {
+          buzz("tap");
+          setMicOn((on) => !on);
+        }}
         state={wake.state}
         speaking={speaking}
         question={question}
