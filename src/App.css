@@ -107,6 +107,81 @@
   text-align: center;
 }
 
+.coach-talk {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.coach-status {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #8b93a3;
+}
+
+.coach-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #8b93a3;
+  text-align: center;
+}
+
+.weekly-goal {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.weekly-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.9rem;
+}
+
+.progress {
+  height: 10px;
+  border-radius: 999px;
+  background: #1a1d24;
+  border: 1px solid #2e333d;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #22c55e;
+}
+
+.goal-controls {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.btn-small {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+.run-history ul {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.run-history li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #c3c9d5;
+  border-bottom: 1px solid #1a1d24;
+  padding-bottom: 0.35rem;
+}
+
 .gps-error {
   color: #f59e0b;
   font-size: 0.85rem;
