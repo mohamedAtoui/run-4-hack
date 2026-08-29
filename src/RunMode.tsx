@@ -9,6 +9,8 @@ import { CoachFace } from "./CoachFace";
 import { adviseOn } from "./advice";
 import { useWakeWord } from "./useWakeWord";
 import { MicToggle } from "./MicToggle";
+import { useWakeLock } from "./useWakeLock";
+import { buzz } from "./haptics";
 
 const COMMENT_INTERVAL_SEC = 45;
 const FAST_PACE = 5.5; // min/km — faster than this earns praise
@@ -31,6 +33,8 @@ export function RunMode({
   const [micOn, setMicOn] = useState(false);
   const lastCommentAt = useRef(0);
   const speakingRef = useRef(false);
+
+  useWakeLock(stats.running);
 
   const deliver = (nextMood: Mood, line: string): Promise<void> => {
     setMood(nextMood);
@@ -79,6 +83,7 @@ export function RunMode({
 
   // Stays mounted until the sign-off finishes so his last reaction is actually seen.
   const finish = () => {
+    buzz("finish");
     stop();
     setFinishing(true);
     const run: RunRecord = {
@@ -100,32 +105,32 @@ export function RunMode({
 
   return (
     <div className="run-mode">
-      <div className="card run-stats">
-        <div className="stat">
-          <span className="stat-value">{fmtDuration(stats.elapsedSec)}</span>
-          <span className="stat-label">time</span>
-        </div>
-        <div className="stat">
-          <span className="stat-value">{stats.distanceKm.toFixed(2)}</span>
-          <span className="stat-label">km</span>
-        </div>
-        <div className="stat">
-          <span className="stat-value">
-            {fmtPace(stats.paceMinPerKm)} /km
-          </span>
-          <span className="stat-label">pace</span>
+      <div className="run-hero">
+        <span className="run-clock">{fmtDuration(stats.elapsedSec)}</span>
+        <div className="run-splits">
+          <div className="stat">
+            <span className="stat-value">{stats.distanceKm.toFixed(2)}</span>
+            <span className="stat-label">km</span>
+          </div>
+          <div className="stat">
+            <span className="stat-value">{fmtPace(stats.paceMinPerKm)}</span>
+            <span className="stat-label">pace /km</span>
+          </div>
         </div>
       </div>
       {stats.gpsError && (
         <p className="gps-error">GPS: {stats.gpsError} — pace commentary limited.</p>
       )}
-      <div className="coach-card">
+      <div className="coach-card run-coach">
         <CoachFace mood={mood} />
         {lastLine && <p className="coach-line">“{lastLine}”</p>}
       </div>
       <MicToggle
         listening={micOn}
-        onToggle={() => setMicOn((on) => !on)}
+        onToggle={() => {
+          buzz("tap");
+          setMicOn((on) => !on);
+        }}
         state={wake.state}
         speaking={speaking}
         question={question}

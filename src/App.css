@@ -1,10 +1,39 @@
 .app {
   max-width: 460px;
+  min-height: 100dvh;
   margin: 0 auto;
-  padding: 0 1rem calc(2.5rem + env(safe-area-inset-bottom));
+  padding: 0 1rem calc(1rem + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  background: var(--beige);
+}
+
+/* On a desktop the column would float in an empty field; frame it like a phone. */
+@media (min-width: 720px) {
+  .app {
+    min-height: auto;
+    height: min(880px, calc(100dvh - 4rem));
+    margin: 2rem auto;
+    border: 3px solid var(--green-deep);
+    border-radius: 28px;
+    overflow: hidden auto;
+    box-shadow: 0 18px 50px rgba(20, 43, 30, 0.35);
+  }
+}
+
+.tab-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  animation: tab-in 220ms ease-out;
+}
+
+@keyframes tab-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
 }
 
 .header {
@@ -37,14 +66,14 @@
 }
 
 .card {
-  background: var(--cream);
+  background: var(--surface);
   border: 2px solid var(--green);
   border-radius: 16px;
   padding: 1rem;
 }
 
 .coach-card {
-  background: var(--cream);
+  background: var(--surface);
   border: 2px solid var(--green);
   border-radius: 20px;
   padding: 1.25rem;
@@ -54,6 +83,35 @@
   gap: 0.75rem;
   align-items: center;
   box-shadow: 0 6px 0 var(--green-deep);
+}
+
+/* Weekly goal drawn around the portrait: the week reads at a glance. */
+.coach-ring {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 184px;
+  height: 184px;
+}
+
+.coach-ring svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+}
+
+.ring-track {
+  stroke: var(--beige-dark);
+}
+
+.ring-fill {
+  stroke: var(--red);
+  transition: stroke-dashoffset 600ms ease-out;
 }
 
 .coach-avatar {
@@ -66,12 +124,19 @@
   align-self: center;
 }
 
+/* Sits inside the ring, so the two rims don't read as one thick border. */
+.coach-ring .coach-avatar {
+  width: 146px;
+  height: 146px;
+  border-color: var(--green);
+}
+
 .coach-line {
   font-size: 1.1rem;
   font-style: italic;
   margin: 0;
   line-height: 1.5;
-  color: var(--green-deep);
+  color: var(--ink);
 }
 
 .coach-name {
@@ -120,7 +185,7 @@
   display: flex;
   align-items: center;
   gap: 0.85rem;
-  background: var(--cream);
+  background: var(--surface);
   border: 2px solid var(--green);
   border-radius: 999px;
   padding: 0.5rem 1rem 0.5rem 0.5rem;
@@ -157,8 +222,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mic-btn-on {
+  .mic-btn-on,
+  .tab-page {
     animation: none;
+  }
+
+  .ring-fill {
+    transition: none;
   }
 }
 
@@ -187,7 +257,7 @@
   border-radius: 14px;
   border: 2px solid var(--green);
   background: var(--beige-dark);
-  color: var(--green-deep);
+  color: var(--ink);
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
@@ -216,6 +286,96 @@
   gap: 1rem;
   text-align: center;
   align-items: stretch;
+  flex: 1;
+}
+
+/* Full-bleed scoreboard: the numbers have to be readable at arm's length. */
+.run-hero {
+  margin: 0 -1rem;
+  padding: 1.5rem 1rem 1.25rem;
+  background: var(--green);
+  color: var(--cream);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.run-clock {
+  font-size: clamp(3.5rem, 20vw, 5rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.run-splits {
+  display: flex;
+  gap: 2.5rem;
+}
+
+.run-splits .stat-value {
+  color: var(--cream);
+  font-size: 2rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.run-splits .stat-label {
+  color: var(--beige-dark);
+}
+
+.run-coach .coach-avatar {
+  width: 120px;
+  height: 120px;
+}
+
+.tab-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  margin: auto -1rem 0;
+  padding: 0.4rem 0.5rem calc(0.4rem + env(safe-area-inset-bottom));
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.25rem;
+  background: var(--surface);
+  border-top: 2px solid var(--green);
+}
+
+.tab {
+  min-height: 52px;
+  border: none;
+  background: none;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.tab-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.tab-active {
+  background: var(--beige-dark);
+  color: var(--green);
+}
+
+.btn-hero {
+  min-height: 68px;
+  font-size: 1.15rem;
+}
+
+.empty-state {
+  text-align: center;
 }
 
 .coach-talk {
@@ -292,7 +452,7 @@
   justify-content: space-between;
   gap: 0.5rem;
   font-size: 0.85rem;
-  color: var(--green-deep);
+  color: var(--ink);
   border-bottom: 1px solid var(--beige-dark);
   padding-bottom: 0.35rem;
 }

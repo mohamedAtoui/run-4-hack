@@ -31,8 +31,10 @@ import {
 } from "./history";
 import { CLERK_ENABLED } from "./clerk";
 import { MicToggle } from "./MicToggle";
-import { useWakeWord } from "./useWakeWord";
+import { useWakeWord, type WakeState } from "./useWakeWord";
 import { adviseOn } from "./advice";
+import { TabBar, type Tab } from "./TabBar";
+import { buzz } from "./haptics";
 import "./App.css";
 
 function moodFor(state: StreakState): Mood {
@@ -46,6 +48,7 @@ function moodFor(state: StreakState): Mood {
 
 function Home() {
   const [state, setState] = useState<StreakState>(loadState);
+  const [tab, setTab] = useState<Tab>("home");
   const [running, setRunning] = useState(false);
   const [mood, setMood] = useState<Mood>(() => moodFor(loadState()));
   const [quote, setQuote] = useState(() => pickQuote(moodFor(loadState())));
@@ -56,7 +59,9 @@ function Home() {
   const [question, setQuestion] = useState("");
 
   const wake = useWakeWord({
-    enabled: micOn && !running,
+    // The toggle only exists on the coach tab, so listening anywhere else would
+    // be a microphone the user cannot see they left on.
+    enabled: micOn && !running && tab === "home",
     paused: speaking,
     onQuestion: (asked) => {
       setQuestion(asked);
@@ -76,6 +81,7 @@ function Home() {
   const done = checkedInToday(state);
 
   const handleCheckIn = () => {
+    buzz("start");
     const next = checkIn(state);
     setState(next);
     const nextMood = moodFor(next);
@@ -87,6 +93,7 @@ function Home() {
 
   const finishRun = (run: RunRecord) => {
     setRunning(false);
+    setTab("history");
     const nextRuns = saveRun(run);
     setRuns(nextRuns);
     if (!checkedInToday(state)) setState(checkIn(state));
@@ -101,16 +108,88 @@ function Home() {
 
   return (
     <>
+      {/* Keyed so switching tabs replays the entry transition. */}
+      <div className="tab-page" key={tab}>
+        {tab === "home" && (
+          <HomeTab
+            state={state}
+            mood={mood}
+            quote={quote}
+            weekProgress={goalKm > 0 ? doneKm / goalKm : 0}
+            micOn={micOn}
+            onToggleMic={() => {
+              buzz("tap");
+              setMicOn((on) => !on);
+            }}
+            wakeState={wake.state}
+            speaking={speaking}
+            question={question}
+            done={done}
+            onCheckIn={handleCheckIn}
+          />
+        )}
+        {tab === "run" && (
+          <RunTab
+            doneKm={doneKm}
+            goalKm={goalKm}
+            onChangeGoal={changeGoal}
+            onStart={() => {
+              buzz("start");
+              setRunning(true);
+            }}
+            streak={state.streak}
+          />
+        )}
+        {tab === "history" && <HistoryTab runs={runs} />}
+      </div>
+      <TabBar
+        tab={tab}
+        onSelect={(next) => {
+          buzz("tap");
+          setTab(next);
+        }}
+      />
+    </>
+  );
+}
+
+function HomeTab({
+  state,
+  mood,
+  quote,
+  weekProgress,
+  micOn,
+  onToggleMic,
+  wakeState,
+  speaking,
+  question,
+  done,
+  onCheckIn,
+}: {
+  state: StreakState;
+  mood: Mood;
+  quote: string;
+  weekProgress: number;
+  micOn: boolean;
+  onToggleMic: () => void;
+  wakeState: WakeState;
+  speaking: boolean;
+  question: string;
+  done: boolean;
+  onCheckIn: () => void;
+}) {
+  return (
+    <>
       <div className="coach-card">
-        <CoachFace mood={mood} />
+        <CoachFace mood={mood} progress={weekProgress} />
         <p className="coach-line">“{quote}”</p>
         <p className="coach-name">— José Mourinho</p>
       </div>
 
       <MicToggle
         listening={micOn}
-        onToggle={() => setMicOn((on) => !on)}
-        state={wake.state}
+        onToggle={onToggleMic}
+        state={wakeState}
         speaking={speaking}
         question={question}
       />
@@ -130,30 +209,63 @@ function Home() {
         </div>
       </div>
 
-      <div className="card">
-        <WeeklyGoal doneKm={doneKm} goalKm={goalKm} onChangeGoal={changeGoal} />
-      </div>
-
       <div className="action-bar">
-        <button className="btn btn-primary" onClick={() => setRunning(true)}>
-          Start a run 🏃
-        </button>
-        <button className="btn" onClick={handleCheckIn} disabled={done}>
+        <button className="btn" onClick={onCheckIn} disabled={done}>
           {done ? "Trained today ✓" : "I trained today (no run)"}
+        </button>
+      </div>
+    </>
+  );
+}
+
+function RunTab({
+  doneKm,
+  goalKm,
+  onChangeGoal,
+  onStart,
+  streak,
+}: {
+  doneKm: number;
+  goalKm: number;
+  onChangeGoal: (km: number) => void;
+  onStart: () => void;
+  streak: number;
+}) {
+  return (
+    <>
+      <div className="card">
+        <WeeklyGoal doneKm={doneKm} goalKm={goalKm} onChangeGoal={onChangeGoal} />
+      </div>
+      <div className="action-bar">
+        <button className="btn btn-primary btn-hero" onClick={onStart}>
+          Start a run 🏃
         </button>
       </div>
       <CoachTalk
         elapsedSec={0}
         distanceKm={0}
         paceMinPerKm={null}
-        streak={state.streak}
+        streak={streak}
       />
-      {runs.length > 0 && (
-        <div className="card">
-          <RunHistory runs={runs} />
-        </div>
-      )}
     </>
+  );
+}
+
+function HistoryTab({ runs }: { runs: RunRecord[] }) {
+  if (runs.length === 0) {
+    return (
+      <div className="card empty-state">
+        <p className="coach-line">
+          “No runs. An empty page. Even my substitutes have more minutes.”
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="card">
+      <RunHistory runs={runs} />
+    </div>
   );
 }
 
