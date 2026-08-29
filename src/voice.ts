@@ -22,17 +22,31 @@ async function speakWithElevenLabs(text: string): Promise<void> {
   const blob = await res.blob();
   const url = URL.createObjectURL(blob);
   currentAudio?.pause();
-  currentAudio = new Audio(url);
-  await currentAudio.play();
-  currentAudio.addEventListener("ended", () => URL.revokeObjectURL(url));
+  const audio = new Audio(url);
+  currentAudio = audio;
+  await audio.play();
+  await new Promise<void>((resolve) => {
+    audio.addEventListener(
+      "ended",
+      () => {
+        URL.revokeObjectURL(url);
+        resolve();
+      },
+      { once: true },
+    );
+  });
 }
 
-function speakWithBrowser(text: string): void {
+function speakWithBrowser(text: string): Promise<void> {
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.rate = 0.95;
   utterance.pitch = 0.8;
   window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(utterance);
+  return new Promise<void>((resolve) => {
+    utterance.onend = () => resolve();
+    utterance.onerror = () => resolve();
+    window.speechSynthesis.speak(utterance);
+  });
 }
 
 export async function speak(text: string): Promise<void> {
@@ -44,5 +58,5 @@ export async function speak(text: string): Promise<void> {
       console.warn("ElevenLabs TTS failed, falling back to browser speech", err);
     }
   }
-  speakWithBrowser(text);
+  await speakWithBrowser(text);
 }

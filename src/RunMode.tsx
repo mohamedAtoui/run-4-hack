@@ -6,10 +6,13 @@ import { CoachTalk } from "./CoachTalk";
 import type { RunRecord } from "./history";
 import { fmtDuration, fmtPace } from "./format";
 import { CoachFace } from "./CoachFace";
+import { adviseOn } from "./advice";
+import { useWakeWord, WAKE_WORD_SUPPORTED } from "./useWakeWord";
 
 const COMMENT_INTERVAL_SEC = 45;
 const FAST_PACE = 5.5; // min/km — faster than this earns praise
 const SLOW_PACE = 8; // min/km — slower than this gets roasted
+const SIGN_OFF_TIMEOUT_MS = 6000;
 
 export function RunMode({
   onFinish,
@@ -21,14 +24,36 @@ export function RunMode({
   const { stats, start, stop } = useRun();
   const [lastLine, setLastLine] = useState("");
   const [mood, setMood] = useState<Mood>("runStart");
+  const [speaking, setSpeaking] = useState(false);
+  const [question, setQuestion] = useState("");
+  const [finishing, setFinishing] = useState(false);
   const lastCommentAt = useRef(0);
+  const speakingRef = useRef(false);
 
-  const say = (nextMood: Mood) => {
-    const line = pickQuote(nextMood);
+  const deliver = (nextMood: Mood, line: string): Promise<void> => {
     setMood(nextMood);
     setLastLine(line);
-    void speak(line);
+    speakingRef.current = true;
+    setSpeaking(true);
+    return speak(line)
+      .catch(() => undefined)
+      .finally(() => {
+        speakingRef.current = false;
+        setSpeaking(false);
+      });
   };
+
+  const say = (nextMood: Mood) => void deliver(nextMood, pickQuote(nextMood));
+
+  const wake = useWakeWord({
+    enabled: true,
+    paused: speaking,
+    onQuestion: (asked) => {
+      setQuestion(asked);
+      const advice = adviseOn(asked);
+      void deliver(advice.mood, advice.line);
+    },
+  });
 
   useEffect(() => {
     start();
@@ -39,6 +64,8 @@ export function RunMode({
   useEffect(() => {
     if (!stats.running) return;
     if (stats.elapsedSec - lastCommentAt.current < COMMENT_INTERVAL_SEC) return;
+    if (speakingRef.current) return; // never talk over an answer he is giving
+
     lastCommentAt.current = stats.elapsedSec;
     const pace = stats.paceMinPerKm;
     if (pace === null) say("paceSteady");
@@ -48,10 +75,11 @@ export function RunMode({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stats.elapsedSec]);
 
+  // Stays mounted until the sign-off finishes so his last reaction is actually seen.
   const finish = () => {
     stop();
-    say("runFinish");
-    onFinish({
+    setFinishing(true);
+    const run: RunRecord = {
       date: new Date().toISOString(),
       distanceKm: stats.distanceKm,
       durationSec: stats.elapsedSec,
@@ -59,7 +87,13 @@ export function RunMode({
         stats.distanceKm > 0
           ? stats.elapsedSec / 60 / stats.distanceKm
           : null,
-    });
+    };
+    // The run is saved even if speech stalls — the sign-off only buys it a moment on screen.
+    const spoken = deliver("runFinish", pickQuote("runFinish"));
+    const capped = new Promise<void>((resolve) =>
+      window.setTimeout(resolve, SIGN_OFF_TIMEOUT_MS),
+    );
+    void Promise.race([spoken, capped]).then(() => onFinish(run));
   };
 
   return (
@@ -85,14 +119,28 @@ export function RunMode({
       )}
       <CoachFace mood={mood} />
       {lastLine && <p className="coach-line">“{lastLine}”</p>}
+      {WAKE_WORD_SUPPORTED ? (
+        <p className="wake-status">
+          {wake.state === "question"
+            ? "Listening… ask him anything"
+            : speaking
+              ? "He's talking. Interrupting is rude."
+              : "Say “José” to ask the coach something"}
+          {question && <span className="wake-heard"> — you asked: “{question}”</span>}
+        </p>
+      ) : (
+        <p className="coach-hint">
+          Wake word needs a browser with speech recognition (Chrome).
+        </p>
+      )}
       <CoachTalk
         elapsedSec={stats.elapsedSec}
         distanceKm={stats.distanceKm}
         paceMinPerKm={stats.paceMinPerKm}
         streak={streak}
       />
-      <button className="btn btn-danger" onClick={finish}>
-        Finish run
+      <button className="btn btn-danger" onClick={finish} disabled={finishing}>
+        {finishing ? "Wrapping up…" : "Finish run"}
       </button>
     </div>
   );
