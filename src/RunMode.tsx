@@ -6,6 +6,8 @@ import { CoachTalk } from "./CoachTalk";
 import type { RunRecord } from "./history";
 import { fmtDuration, fmtPace } from "./format";
 import { CoachFace } from "./CoachFace";
+import { adviseOn } from "./advice";
+import { useWakeWord, WAKE_WORD_SUPPORTED } from "./useWakeWord";
 
 const COMMENT_INTERVAL_SEC = 45;
 const FAST_PACE = 5.5; // min/km — faster than this earns praise
@@ -21,14 +23,28 @@ export function RunMode({
   const { stats, start, stop } = useRun();
   const [lastLine, setLastLine] = useState("");
   const [mood, setMood] = useState<Mood>("runStart");
+  const [speaking, setSpeaking] = useState(false);
+  const [question, setQuestion] = useState("");
   const lastCommentAt = useRef(0);
 
-  const say = (nextMood: Mood) => {
-    const line = pickQuote(nextMood);
+  const deliver = (nextMood: Mood, line: string) => {
     setMood(nextMood);
     setLastLine(line);
-    void speak(line);
+    setSpeaking(true);
+    void speak(line).finally(() => setSpeaking(false));
   };
+
+  const say = (nextMood: Mood) => deliver(nextMood, pickQuote(nextMood));
+
+  const wake = useWakeWord({
+    enabled: true,
+    paused: speaking,
+    onQuestion: (asked) => {
+      setQuestion(asked);
+      const advice = adviseOn(asked);
+      deliver(advice.mood, advice.line);
+    },
+  });
 
   useEffect(() => {
     start();
@@ -85,6 +101,20 @@ export function RunMode({
       )}
       <CoachFace mood={mood} />
       {lastLine && <p className="coach-line">“{lastLine}”</p>}
+      {WAKE_WORD_SUPPORTED ? (
+        <p className="wake-status">
+          {wake.state === "question"
+            ? "Listening… ask him anything"
+            : speaking
+              ? "He's talking. Interrupting is rude."
+              : "Say “José” to ask the coach something"}
+          {question && <span className="wake-heard"> — you asked: “{question}”</span>}
+        </p>
+      ) : (
+        <p className="coach-hint">
+          Wake word needs a browser with speech recognition (Chrome).
+        </p>
+      )}
       <CoachTalk
         elapsedSec={stats.elapsedSec}
         distanceKm={stats.distanceKm}
