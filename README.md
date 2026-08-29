@@ -18,6 +18,20 @@ cp .env.example .env   # fill in keys (optional)
 npm run dev
 ```
 
+### ElevenLabs agent setup
+
+The speech-to-speech coach sends `src/persona.ts` to the agent as a **session
+override** at connect time. The agent must be configured to accept them, or it
+silently falls back to its own dashboard settings and the persona is lost.
+
+In the ElevenLabs dashboard, on the agent:
+
+1. **Security -> Overrides**: enable `System prompt`, `First message`, and `Voice ID`.
+2. **Security -> Authentication**: leave auth **disabled** (public agent), otherwise
+   `VITE_ELEVENLABS_SIGNED_URL_ENDPOINT` and a backend are required.
+3. **Voice**: set `kIR0B1kiG8aJ0Uv9URKI` as a fallback for when overrides are unavailable.
+4. **LLM temperature**: ~0.8. The default of 0 makes the persona flat and repetitive.
+
 ## Scripts
 
 - `npm run dev` — dev server
