@@ -25,6 +25,7 @@ export function RunMode({
   const [mood, setMood] = useState<Mood>("runStart");
   const [speaking, setSpeaking] = useState(false);
   const [question, setQuestion] = useState("");
+  const [finishing, setFinishing] = useState(false);
   const lastCommentAt = useRef(0);
 
   const deliver = (nextMood: Mood, line: string) => {
@@ -64,10 +65,11 @@ export function RunMode({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stats.elapsedSec]);
 
+  // Stays mounted until the sign-off finishes so his last reaction is actually seen.
   const finish = () => {
     stop();
-    say("runFinish");
-    onFinish({
+    setFinishing(true);
+    const run: RunRecord = {
       date: new Date().toISOString(),
       distanceKm: stats.distanceKm,
       durationSec: stats.elapsedSec,
@@ -75,6 +77,14 @@ export function RunMode({
         stats.distanceKm > 0
           ? stats.elapsedSec / 60 / stats.distanceKm
           : null,
+    };
+    const line = pickQuote("runFinish");
+    setMood("runFinish");
+    setLastLine(line);
+    setSpeaking(true);
+    void speak(line).finally(() => {
+      setSpeaking(false);
+      onFinish(run);
     });
   };
 
@@ -121,8 +131,8 @@ export function RunMode({
         paceMinPerKm={stats.paceMinPerKm}
         streak={streak}
       />
-      <button className="btn btn-danger" onClick={finish}>
-        Finish run
+      <button className="btn btn-danger" onClick={finish} disabled={finishing}>
+        {finishing ? "Wrapping up…" : "Finish run"}
       </button>
     </div>
   );
