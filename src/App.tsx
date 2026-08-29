@@ -58,7 +58,7 @@ function Home() {
   const [question, setQuestion] = useState("");
 
   const wake = useWakeWord({
-    enabled: micOn,
+    enabled: micOn && !running,
     paused: speaking,
     onQuestion: (asked) => {
       setQuestion(asked);
