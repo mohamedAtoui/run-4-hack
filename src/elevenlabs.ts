@@ -4,7 +4,7 @@ export const ELEVENLABS_API_KEY = import.meta.env.VITE_ELEVENLABS_API_KEY as
 
 export const ELEVENLABS_VOICE_ID =
   (import.meta.env.VITE_ELEVENLABS_VOICE_ID as string | undefined) ??
-  "JBFqnCBsd6RMkjVDRZzb";
+  "kIR0B1kiG8aJ0Uv9URKI";
 
 /** Conversational AI agent used for the speech-to-speech coach. */
 export const ELEVENLABS_AGENT_ID = import.meta.env
