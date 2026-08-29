@@ -12,6 +12,7 @@ import { useWakeWord, WAKE_WORD_SUPPORTED } from "./useWakeWord";
 const COMMENT_INTERVAL_SEC = 45;
 const FAST_PACE = 5.5; // min/km — faster than this earns praise
 const SLOW_PACE = 8; // min/km — slower than this gets roasted
+const SIGN_OFF_TIMEOUT_MS = 6000;
 
 export function RunMode({
   onFinish,
@@ -27,15 +28,22 @@ export function RunMode({
   const [question, setQuestion] = useState("");
   const [finishing, setFinishing] = useState(false);
   const lastCommentAt = useRef(0);
+  const speakingRef = useRef(false);
 
-  const deliver = (nextMood: Mood, line: string) => {
+  const deliver = (nextMood: Mood, line: string): Promise<void> => {
     setMood(nextMood);
     setLastLine(line);
+    speakingRef.current = true;
     setSpeaking(true);
-    void speak(line).finally(() => setSpeaking(false));
+    return speak(line)
+      .catch(() => undefined)
+      .finally(() => {
+        speakingRef.current = false;
+        setSpeaking(false);
+      });
   };
 
-  const say = (nextMood: Mood) => deliver(nextMood, pickQuote(nextMood));
+  const say = (nextMood: Mood) => void deliver(nextMood, pickQuote(nextMood));
 
   const wake = useWakeWord({
     enabled: true,
@@ -43,7 +51,7 @@ export function RunMode({
     onQuestion: (asked) => {
       setQuestion(asked);
       const advice = adviseOn(asked);
-      deliver(advice.mood, advice.line);
+      void deliver(advice.mood, advice.line);
     },
   });
 
@@ -56,6 +64,8 @@ export function RunMode({
   useEffect(() => {
     if (!stats.running) return;
     if (stats.elapsedSec - lastCommentAt.current < COMMENT_INTERVAL_SEC) return;
+    if (speakingRef.current) return; // never talk over an answer he is giving
+
     lastCommentAt.current = stats.elapsedSec;
     const pace = stats.paceMinPerKm;
     if (pace === null) say("paceSteady");
@@ -78,14 +88,12 @@ export function RunMode({
           ? stats.elapsedSec / 60 / stats.distanceKm
           : null,
     };
-    const line = pickQuote("runFinish");
-    setMood("runFinish");
-    setLastLine(line);
-    setSpeaking(true);
-    void speak(line).finally(() => {
-      setSpeaking(false);
-      onFinish(run);
-    });
+    // The run is saved even if speech stalls — the sign-off only buys it a moment on screen.
+    const spoken = deliver("runFinish", pickQuote("runFinish"));
+    const capped = new Promise<void>((resolve) =>
+      window.setTimeout(resolve, SIGN_OFF_TIMEOUT_MS),
+    );
+    void Promise.race([spoken, capped]).then(() => onFinish(run));
   };
 
   return (
