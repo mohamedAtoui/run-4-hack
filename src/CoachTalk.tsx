@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { useConversation } from "@elevenlabs/react";
+import { ConversationProvider, useConversation } from "@elevenlabs/react";
 import {
   CONVERSATION_ENABLED,
   ELEVENLABS_AGENT_ID,
@@ -17,6 +17,22 @@ export interface CoachTalkProps {
 }
 
 export function CoachTalk(props: CoachTalkProps) {
+  if (!CONVERSATION_ENABLED) {
+    return (
+      <p className="coach-hint">
+        Talk-back coach is off — set <code>VITE_ELEVENLABS_AGENT_ID</code> to
+        argue with him live.
+      </p>
+    );
+  }
+  return (
+    <ConversationProvider>
+      <CoachTalkSession {...props} />
+    </ConversationProvider>
+  );
+}
+
+function CoachTalkSession(props: CoachTalkProps) {
   const [error, setError] = useState<string | null>(null);
   const [lastSaid, setLastSaid] = useState<string | null>(null);
 
@@ -66,15 +82,6 @@ export function CoachTalk(props: CoachTalkProps) {
   const stop = useCallback(() => {
     void conversation.endSession();
   }, [conversation]);
-
-  if (!CONVERSATION_ENABLED) {
-    return (
-      <p className="coach-hint">
-        Talk-back coach is off — set <code>VITE_ELEVENLABS_AGENT_ID</code> to
-        argue with him live.
-      </p>
-    );
-  }
 
   return (
     <div className="coach-talk">
