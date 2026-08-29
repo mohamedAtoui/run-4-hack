@@ -1,0 +1,114 @@
+.app {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header h1 {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.coach-card {
+  background: #1a1d24;
+  border: 1px solid #2e333d;
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.coach-avatar {
+  font-size: 3rem;
+}
+
+.coach-line {
+  font-size: 1.1rem;
+  font-style: italic;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.coach-name {
+  margin: 0;
+  color: #8b93a3;
+  font-size: 0.85rem;
+}
+
+.streak-row,
+.run-stats {
+  display: flex;
+  justify-content: space-around;
+  gap: 0.5rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8b93a3;
+}
+
+.btn {
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  border: 1px solid #2e333d;
+  background: #1a1d24;
+  color: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.btn-primary {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.btn-danger {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
+.run-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding-top: 2rem;
+  text-align: center;
+}
+
+.gps-error {
+  color: #f59e0b;
+  font-size: 0.85rem;
+  margin: 0;
+}
