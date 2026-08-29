@@ -1,6 +1,14 @@
+/**
+ * Optional direct API key. Anything VITE_-prefixed is inlined into the client
+ * bundle and is therefore public, so prefer the `/api/tts` proxy in deployed
+ * builds and keep this for local development only.
+ */
 export const ELEVENLABS_API_KEY = import.meta.env.VITE_ELEVENLABS_API_KEY as
   | string
   | undefined;
+
+/** Server-side TTS proxy that keeps the API key off the client. */
+export const TTS_PROXY_ENDPOINT = "/api/tts";
 
 export const ELEVENLABS_VOICE_ID =
   (import.meta.env.VITE_ELEVENLABS_VOICE_ID as string | undefined) ??
