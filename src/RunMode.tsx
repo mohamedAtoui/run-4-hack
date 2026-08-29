@@ -5,7 +5,7 @@ import { useRun } from "./useRun";
 import { CoachTalk } from "./CoachTalk";
 import type { RunRecord } from "./history";
 import { fmtDuration, fmtPace } from "./format";
-import { coachImage } from "./coachImage";
+import { CoachFace } from "./CoachFace";
 
 const COMMENT_INTERVAL_SEC = 45;
 const FAST_PACE = 5.5; // min/km — faster than this earns praise
@@ -83,7 +83,7 @@ export function RunMode({
       {stats.gpsError && (
         <p className="gps-error">GPS: {stats.gpsError} — pace commentary limited.</p>
       )}
-      <img className="coach-avatar" src={coachImage(mood)} alt="The coach" />
+      <CoachFace mood={mood} />
       {lastLine && <p className="coach-line">“{lastLine}”</p>}
       <CoachTalk
         elapsedSec={stats.elapsedSec}

@@ -19,7 +19,7 @@ import { CoachTalk } from "./CoachTalk";
 import { RunHistory } from "./RunHistory";
 import { WeeklyGoal } from "./WeeklyGoal";
 import { weeklyMood } from "./weekly";
-import { coachImage } from "./coachImage";
+import { CoachFace } from "./CoachFace";
 import { useWeekBoundary } from "./useWeekBoundary";
 import {
   loadRuns,
@@ -81,9 +81,9 @@ function Home() {
   return (
     <>
       <div className="coach-card">
-        <img className="coach-avatar" src={coachImage(mood)} alt="The coach" />
+        <CoachFace mood={mood} />
         <p className="coach-line">“{quote}”</p>
-        <p className="coach-name">— The Special Coach</p>
+        <p className="coach-name">— José Mourinho</p>
       </div>
 
       <div className="streak-row">
