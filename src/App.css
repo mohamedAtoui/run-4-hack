@@ -1,7 +1,7 @@
 .app {
   max-width: 420px;
   margin: 0 auto;
-  padding: 1.5rem 1rem;
+  padding: 1.5rem 1rem 3rem;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -16,22 +16,32 @@
 .header h1 {
   font-size: 1.4rem;
   margin: 0;
+  color: var(--green);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 .coach-card {
-  background: #1a1d24;
-  border: 1px solid #2e333d;
-  border-radius: 16px;
-  padding: 1.5rem;
+  background: var(--cream);
+  border: 2px solid var(--green);
+  border-radius: 18px;
+  padding: 1.25rem;
   text-align: center;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   align-items: center;
+  box-shadow: 0 6px 0 var(--green-deep);
 }
 
 .coach-avatar {
-  font-size: 3rem;
+  width: 148px;
+  height: 148px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--red);
+  background: var(--beige-dark);
+  align-self: center;
 }
 
 .coach-line {
@@ -39,12 +49,16 @@
   font-style: italic;
   margin: 0;
   line-height: 1.5;
+  color: var(--green-deep);
 }
 
 .coach-name {
   margin: 0;
-  color: #8b93a3;
+  color: var(--red);
   font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .streak-row,
@@ -63,48 +77,52 @@
 
 .stat-value {
   font-size: 1.5rem;
-  font-weight: 700;
+  font-weight: 800;
+  color: var(--green);
 }
 
 .stat-label {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #8b93a3;
+  color: var(--muted);
 }
 
 .btn {
   padding: 0.9rem 1rem;
   border-radius: 12px;
-  border: 1px solid #2e333d;
-  background: #1a1d24;
-  color: inherit;
+  border: 2px solid var(--green);
+  background: var(--beige-dark);
+  color: var(--green-deep);
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
 }
 
 .btn:disabled {
-  opacity: 0.5;
+  opacity: 0.55;
   cursor: default;
 }
 
 .btn-primary {
-  background: #2563eb;
-  border-color: #2563eb;
+  background: var(--green);
+  border-color: var(--green);
+  color: var(--cream);
 }
 
 .btn-danger {
-  background: #dc2626;
-  border-color: #dc2626;
+  background: var(--red);
+  border-color: var(--red);
+  color: var(--cream);
 }
 
 .run-mode {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  padding-top: 2rem;
+  gap: 1.25rem;
+  padding-top: 1.5rem;
   text-align: center;
+  align-items: stretch;
 }
 
 .coach-talk {
@@ -116,13 +134,13 @@
 .coach-status {
   margin: 0;
   font-size: 0.85rem;
-  color: #8b93a3;
+  color: var(--muted);
 }
 
 .coach-hint {
   margin: 0;
   font-size: 0.8rem;
-  color: #8b93a3;
+  color: var(--muted);
   text-align: center;
 }
 
@@ -137,19 +155,23 @@
   justify-content: space-between;
   align-items: baseline;
   font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--green);
+  font-weight: 700;
 }
 
 .progress {
-  height: 10px;
+  height: 12px;
   border-radius: 999px;
-  background: #1a1d24;
-  border: 1px solid #2e333d;
+  background: var(--beige-dark);
+  border: 2px solid var(--green);
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: #22c55e;
+  background: var(--red);
 }
 
 .goal-controls {
@@ -177,13 +199,13 @@
   justify-content: space-between;
   gap: 0.5rem;
   font-size: 0.85rem;
-  color: #c3c9d5;
-  border-bottom: 1px solid #1a1d24;
+  color: var(--green-deep);
+  border-bottom: 1px solid var(--beige-dark);
   padding-bottom: 0.35rem;
 }
 
 .gps-error {
-  color: #f59e0b;
+  color: var(--red);
   font-size: 0.85rem;
   margin: 0;
 }

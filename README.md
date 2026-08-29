@@ -8,6 +8,7 @@ Duolingo-style motivation app for sports, coached by a José Mourinho-inspired c
 - **Voice**: ElevenLabs TTS when `VITE_ELEVENLABS_API_KEY` is set; browser speech synthesis fallback otherwise.
 - **Talk back (speech-to-speech)**: hold a live voice conversation with the coach via ElevenLabs Conversational AI when `VITE_ELEVENLABS_AGENT_ID` is set. The persona prompt (`src/persona.ts`) is sent as a session override, so the agent stays in character and gets your live run stats. For private agents set `VITE_ELEVENLABS_SIGNED_URL_ENDPOINT` to a backend route returning `{ signedUrl }`.
 - **Auth**: Clerk sign-in when `VITE_CLERK_PUBLISHABLE_KEY` is set; open access otherwise.
+- **Coach face**: a reaction photo matched to the coach's mood (`src/coachImage.ts`) — headphones off when you slow down, asleep at the desk when you skip a day, finger to the lips on a streak.
 - **Streaks**: daily check-ins, streak/best/total counters (localStorage), mood-based coach messages.
 
 ## Setup

@@ -18,7 +18,8 @@ import { RunMode } from "./RunMode";
 import { CoachTalk } from "./CoachTalk";
 import { RunHistory } from "./RunHistory";
 import { WeeklyGoal } from "./WeeklyGoal";
-import { weeklyLine } from "./weekly";
+import { weeklyMood } from "./weekly";
+import { CoachFace } from "./CoachFace";
 import { useWeekBoundary } from "./useWeekBoundary";
 import {
   loadRuns,
@@ -43,6 +44,7 @@ function moodFor(state: StreakState): Mood {
 function Home() {
   const [state, setState] = useState<StreakState>(loadState);
   const [running, setRunning] = useState(false);
+  const [mood, setMood] = useState<Mood>(() => moodFor(loadState()));
   const [quote, setQuote] = useState(() => pickQuote(moodFor(loadState())));
   const [runs, setRuns] = useState<RunRecord[]>(loadRuns);
   const [goalKm, setGoalKm] = useState<number>(loadWeeklyGoal);
@@ -55,7 +57,9 @@ function Home() {
   const handleCheckIn = () => {
     const next = checkIn(state);
     setState(next);
-    const line = pickQuote(moodFor(next));
+    const nextMood = moodFor(next);
+    const line = pickQuote(nextMood);
+    setMood(nextMood);
     setQuote(line);
     void speak(line);
   };
@@ -65,7 +69,9 @@ function Home() {
     const nextRuns = saveRun(run);
     setRuns(nextRuns);
     if (!checkedInToday(state)) setState(checkIn(state));
-    setQuote(weeklyLine(weeklyKm(nextRuns), goalKm));
+    const nextMood = weeklyMood(weeklyKm(nextRuns), goalKm);
+    setMood(nextMood);
+    setQuote(pickQuote(nextMood));
   };
 
   const changeGoal = (km: number) => setGoalKm(saveWeeklyGoal(km));
@@ -75,9 +81,9 @@ function Home() {
   return (
     <>
       <div className="coach-card">
-        <div className="coach-avatar">🧥</div>
+        <CoachFace mood={mood} />
         <p className="coach-line">“{quote}”</p>
-        <p className="coach-name">— The Special Coach</p>
+        <p className="coach-name">— José Mourinho</p>
       </div>
 
       <div className="streak-row">

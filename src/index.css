@@ -1,9 +1,17 @@
 :root {
+  --beige: #efe3cc;
+  --beige-dark: #e3d4b7;
+  --green: #1c3b2a;
+  --green-deep: #142b1e;
+  --red: #7a1f1f;
+  --cream: #f7efe0;
+  --muted: #6b7a6a;
+
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   line-height: 1.5;
-  color-scheme: dark;
-  color: #e7eaf0;
-  background-color: #0f1115;
+  color-scheme: light;
+  color: var(--green-deep);
+  background-color: var(--beige);
 }
 
 * {
@@ -13,4 +21,7 @@
 body {
   margin: 0;
   min-height: 100vh;
+  background:
+    radial-gradient(circle at 50% 0%, var(--cream), transparent 60%),
+    var(--beige);
 }
