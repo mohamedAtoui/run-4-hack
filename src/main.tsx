@@ -8,7 +8,19 @@ import "./index.css";
 // Only in a build: the dev server serves modules the cache-first worker must not keep.
 if (import.meta.env.PROD && "serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    void navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+    void navigator.serviceWorker
+      .register("/sw.js")
+      .then(() => navigator.serviceWorker.ready)
+      .then((registration) => {
+        // This load's assets were fetched before the worker took control, so hand
+        // it their URLs — otherwise a first offline launch has no scripts.
+        const urls = performance
+          .getEntriesByType("resource")
+          .filter((entry) => entry.name.startsWith(location.origin))
+          .map((entry) => entry.name);
+        registration.active?.postMessage({ type: "precache", urls });
+      })
+      .catch(() => undefined);
   });
 }
 

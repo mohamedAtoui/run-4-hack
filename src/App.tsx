@@ -34,6 +34,7 @@ import { MicToggle } from "./MicToggle";
 import { useWakeWord, type WakeState } from "./useWakeWord";
 import { adviseOn } from "./advice";
 import { TabBar, type Tab } from "./TabBar";
+import { buzz } from "./haptics";
 import "./App.css";
 
 function moodFor(state: StreakState): Mood {
@@ -58,7 +59,9 @@ function Home() {
   const [question, setQuestion] = useState("");
 
   const wake = useWakeWord({
-    enabled: micOn && !running,
+    // The toggle only exists on the coach tab, so listening anywhere else would
+    // be a microphone the user cannot see they left on.
+    enabled: micOn && !running && tab === "home",
     paused: speaking,
     onQuestion: (asked) => {
       setQuestion(asked);
@@ -78,6 +81,7 @@ function Home() {
   const done = checkedInToday(state);
 
   const handleCheckIn = () => {
+    buzz("start");
     const next = checkIn(state);
     setState(next);
     const nextMood = moodFor(next);
@@ -104,14 +108,19 @@ function Home() {
 
   return (
     <>
-      <div className="tab-page">
+      {/* Keyed so switching tabs replays the entry transition. */}
+      <div className="tab-page" key={tab}>
         {tab === "home" && (
           <HomeTab
             state={state}
             mood={mood}
             quote={quote}
+            weekProgress={goalKm > 0 ? doneKm / goalKm : 0}
             micOn={micOn}
-            onToggleMic={() => setMicOn((on) => !on)}
+            onToggleMic={() => {
+              buzz("tap");
+              setMicOn((on) => !on);
+            }}
             wakeState={wake.state}
             speaking={speaking}
             question={question}
@@ -124,13 +133,22 @@ function Home() {
             doneKm={doneKm}
             goalKm={goalKm}
             onChangeGoal={changeGoal}
-            onStart={() => setRunning(true)}
+            onStart={() => {
+              buzz("start");
+              setRunning(true);
+            }}
             streak={state.streak}
           />
         )}
         {tab === "history" && <HistoryTab runs={runs} />}
       </div>
-      <TabBar tab={tab} onSelect={setTab} />
+      <TabBar
+        tab={tab}
+        onSelect={(next) => {
+          buzz("tap");
+          setTab(next);
+        }}
+      />
     </>
   );
 }
@@ -139,6 +157,7 @@ function HomeTab({
   state,
   mood,
   quote,
+  weekProgress,
   micOn,
   onToggleMic,
   wakeState,
@@ -150,6 +169,7 @@ function HomeTab({
   state: StreakState;
   mood: Mood;
   quote: string;
+  weekProgress: number;
   micOn: boolean;
   onToggleMic: () => void;
   wakeState: WakeState;
@@ -161,7 +181,7 @@ function HomeTab({
   return (
     <>
       <div className="coach-card">
-        <CoachFace mood={mood} />
+        <CoachFace mood={mood} progress={weekProgress} />
         <p className="coach-line">“{quote}”</p>
         <p className="coach-name">— José Mourinho</p>
       </div>

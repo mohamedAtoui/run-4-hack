@@ -1,9 +1,16 @@
 // Cache the built app so a run keeps working when the phone loses signal.
 const CACHE = "special-one-v1";
 
+// Only static build output is served from the cache; anything else (the signed
+// URL endpoint for the coach, for instance) expires and must hit the network.
+const CACHEABLE = new Set(["script", "style", "image", "font"]);
+
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.add("/")).then(() => self.skipWaiting()),
+    caches
+      .open(CACHE)
+      .then((cache) => cache.add("/"))
+      .then(() => self.skipWaiting()),
   );
 });
 
@@ -15,6 +22,23 @@ self.addEventListener("activate", (event) => {
         Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key))),
       )
       .then(() => self.clients.claim()),
+  );
+});
+
+// The page reports the assets it loaded before this worker existed, otherwise
+// the first offline launch has the shell HTML but none of its scripts.
+self.addEventListener("message", (event) => {
+  const data = event.data;
+  if (!data || data.type !== "precache" || !Array.isArray(data.urls)) return;
+
+  event.waitUntil(
+    caches.open(CACHE).then((cache) =>
+      Promise.all(
+        data.urls.map((url) =>
+          cache.match(url).then((hit) => (hit ? undefined : cache.add(url).catch(() => undefined))),
+        ),
+      ),
+    ),
   );
 });
 
@@ -38,6 +62,8 @@ self.addEventListener("fetch", (event) => {
     );
     return;
   }
+
+  if (!CACHEABLE.has(request.destination)) return;
 
   // Hashed build assets never change under the same URL.
   event.respondWith(
