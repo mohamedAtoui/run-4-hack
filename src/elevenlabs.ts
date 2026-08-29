@@ -10,9 +10,17 @@ export const ELEVENLABS_API_KEY = import.meta.env.VITE_ELEVENLABS_API_KEY as
 /** Server-side TTS proxy that keeps the API key off the client. */
 export const TTS_PROXY_ENDPOINT = "/api/tts";
 
+/**
+ * Stock ElevenLabs voice ("Bill"), used only when VITE_ELEVENLABS_VOICE_ID is
+ * unset. Stock voices are available to every account, so this fallback cannot
+ * 404 the way a custom voice ID does once it is missing from the library.
+ * The real coach voice is configured via the environment, not here.
+ */
+const FALLBACK_VOICE_ID = "pqHfZKP75CvOlQylNhV4";
+
 export const ELEVENLABS_VOICE_ID =
   (import.meta.env.VITE_ELEVENLABS_VOICE_ID as string | undefined) ??
-  "kIR0B1kiG8aJ0Uv9URKI";
+  FALLBACK_VOICE_ID;
 
 /** Conversational AI agent used for the speech-to-speech coach. */
 export const ELEVENLABS_AGENT_ID = import.meta.env

@@ -43,6 +43,16 @@ curl -s -o /dev/null -w '%{http_code}\n' \
 `200` means the key is good; `401` means it is missing permissions, and the
 response body names which one.
 
+A voice ID must be **in the account's library** to be addressed by ID — a
+custom voice belonging to someone else fails even with a valid key, and the
+agent quietly falls back to its dashboard voice rather than erroring. List what
+the account can actually use:
+
+```bash
+curl -s -H "xi-api-key: $VITE_ELEVENLABS_API_KEY" \
+  https://api.elevenlabs.io/v1/voices | python3 -m json.tool | grep -E '"(name|voice_id)"'
+```
+
 ### ElevenLabs agent setup
 
 The speech-to-speech coach sends `src/persona.ts` to the agent as a **session
@@ -54,7 +64,9 @@ In the ElevenLabs dashboard, on the agent:
 1. **Security -> Overrides**: enable `System prompt`, `First message`, and `Voice ID`.
 2. **Security -> Authentication**: leave auth **disabled** (public agent), otherwise
    `VITE_ELEVENLABS_SIGNED_URL_ENDPOINT` and a backend are required.
-3. **Voice**: set `kIR0B1kiG8aJ0Uv9URKI` as a fallback for when overrides are unavailable.
+3. **Voice**: set the agent's voice to the same voice as `VITE_ELEVENLABS_VOICE_ID`,
+   so it still speaks in character when an override does not apply. The two are
+   configured in different places and nothing keeps them in sync.
 4. **LLM temperature**: ~0.8. The default of 0 makes the persona flat and repetitive.
 
 ## Scripts
