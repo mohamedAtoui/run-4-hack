@@ -31,8 +31,9 @@ import {
 } from "./history";
 import { CLERK_ENABLED } from "./clerk";
 import { MicToggle } from "./MicToggle";
-import { useWakeWord } from "./useWakeWord";
+import { useWakeWord, type WakeState } from "./useWakeWord";
 import { adviseOn } from "./advice";
+import { TabBar, type Tab } from "./TabBar";
 import "./App.css";
 
 function moodFor(state: StreakState): Mood {
@@ -46,6 +47,7 @@ function moodFor(state: StreakState): Mood {
 
 function Home() {
   const [state, setState] = useState<StreakState>(loadState);
+  const [tab, setTab] = useState<Tab>("home");
   const [running, setRunning] = useState(false);
   const [mood, setMood] = useState<Mood>(() => moodFor(loadState()));
   const [quote, setQuote] = useState(() => pickQuote(moodFor(loadState())));
@@ -87,6 +89,7 @@ function Home() {
 
   const finishRun = (run: RunRecord) => {
     setRunning(false);
+    setTab("history");
     const nextRuns = saveRun(run);
     setRuns(nextRuns);
     if (!checkedInToday(state)) setState(checkIn(state));
@@ -101,6 +104,62 @@ function Home() {
 
   return (
     <>
+      <div className="tab-page">
+        {tab === "home" && (
+          <HomeTab
+            state={state}
+            mood={mood}
+            quote={quote}
+            micOn={micOn}
+            onToggleMic={() => setMicOn((on) => !on)}
+            wakeState={wake.state}
+            speaking={speaking}
+            question={question}
+            done={done}
+            onCheckIn={handleCheckIn}
+          />
+        )}
+        {tab === "run" && (
+          <RunTab
+            doneKm={doneKm}
+            goalKm={goalKm}
+            onChangeGoal={changeGoal}
+            onStart={() => setRunning(true)}
+            streak={state.streak}
+          />
+        )}
+        {tab === "history" && <HistoryTab runs={runs} />}
+      </div>
+      <TabBar tab={tab} onSelect={setTab} />
+    </>
+  );
+}
+
+function HomeTab({
+  state,
+  mood,
+  quote,
+  micOn,
+  onToggleMic,
+  wakeState,
+  speaking,
+  question,
+  done,
+  onCheckIn,
+}: {
+  state: StreakState;
+  mood: Mood;
+  quote: string;
+  micOn: boolean;
+  onToggleMic: () => void;
+  wakeState: WakeState;
+  speaking: boolean;
+  question: string;
+  done: boolean;
+  onCheckIn: () => void;
+}) {
+  return (
+    <>
       <div className="coach-card">
         <CoachFace mood={mood} />
         <p className="coach-line">“{quote}”</p>
@@ -109,8 +168,8 @@ function Home() {
 
       <MicToggle
         listening={micOn}
-        onToggle={() => setMicOn((on) => !on)}
-        state={wake.state}
+        onToggle={onToggleMic}
+        state={wakeState}
         speaking={speaking}
         question={question}
       />
@@ -130,30 +189,63 @@ function Home() {
         </div>
       </div>
 
-      <div className="card">
-        <WeeklyGoal doneKm={doneKm} goalKm={goalKm} onChangeGoal={changeGoal} />
-      </div>
-
       <div className="action-bar">
-        <button className="btn btn-primary" onClick={() => setRunning(true)}>
-          Start a run 🏃
-        </button>
-        <button className="btn" onClick={handleCheckIn} disabled={done}>
+        <button className="btn" onClick={onCheckIn} disabled={done}>
           {done ? "Trained today ✓" : "I trained today (no run)"}
+        </button>
+      </div>
+    </>
+  );
+}
+
+function RunTab({
+  doneKm,
+  goalKm,
+  onChangeGoal,
+  onStart,
+  streak,
+}: {
+  doneKm: number;
+  goalKm: number;
+  onChangeGoal: (km: number) => void;
+  onStart: () => void;
+  streak: number;
+}) {
+  return (
+    <>
+      <div className="card">
+        <WeeklyGoal doneKm={doneKm} goalKm={goalKm} onChangeGoal={onChangeGoal} />
+      </div>
+      <div className="action-bar">
+        <button className="btn btn-primary btn-hero" onClick={onStart}>
+          Start a run 🏃
         </button>
       </div>
       <CoachTalk
         elapsedSec={0}
         distanceKm={0}
         paceMinPerKm={null}
-        streak={state.streak}
+        streak={streak}
       />
-      {runs.length > 0 && (
-        <div className="card">
-          <RunHistory runs={runs} />
-        </div>
-      )}
     </>
+  );
+}
+
+function HistoryTab({ runs }: { runs: RunRecord[] }) {
+  if (runs.length === 0) {
+    return (
+      <div className="card empty-state">
+        <p className="coach-line">
+          “No runs. An empty page. Even my substitutes have more minutes.”
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="card">
+      <RunHistory runs={runs} />
+    </div>
   );
 }
 
