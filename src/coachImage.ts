@@ -1,24 +1,26 @@
 import type { Mood } from "./coach";
-import applause from "./assets/coach-applause.webp";
-import deadpan from "./assets/coach-deadpan.webp";
-import furious from "./assets/coach-furious.webp";
-import pointing from "./assets/coach-pointing.webp";
-import smug from "./assets/coach-smug.webp";
+import asleep from "./assets/mou-asleep.webp";
+import headphones from "./assets/mou-headphones.webp";
+import presser from "./assets/mou-presser.webp";
+import shush from "./assets/mou-shush.webp";
+import smirk from "./assets/mou-smirk.webp";
+import stare from "./assets/mou-stare.webp";
+import steady from "./assets/mou-steady.webp";
 
 const IMAGES: Record<Mood, string> = {
-  greeting: deadpan,
-  checkin: smug,
-  streak: smug,
-  milestone: applause,
-  missed: furious,
-  runStart: pointing,
-  paceFast: applause,
-  paceSlow: furious,
-  paceSteady: deadpan,
-  runFinish: applause,
-  weekAhead: smug,
-  weekBehind: furious,
-  weekDone: applause,
+  greeting: presser,
+  checkin: smirk,
+  streak: shush,
+  milestone: shush,
+  missed: asleep,
+  runStart: stare,
+  paceFast: smirk,
+  paceSlow: headphones,
+  paceSteady: steady,
+  runFinish: smirk,
+  weekAhead: shush,
+  weekBehind: headphones,
+  weekDone: smirk,
 };
 
 export function coachImage(mood: Mood): string {

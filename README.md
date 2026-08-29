@@ -9,7 +9,7 @@ Duolingo-style motivation app for sports, coached by a José Mourinho-inspired c
 - **Talk back (speech-to-speech)**: hold a live voice conversation with the coach via ElevenLabs Conversational AI when `VITE_ELEVENLABS_AGENT_ID` is set. The persona prompt (`src/persona.ts`) is sent as a session override, so the agent stays in character and gets your live run stats. For private agents set `VITE_ELEVENLABS_SIGNED_URL_ENDPOINT` to a backend route returning `{ signedUrl }`.
 - **Auth**: Clerk sign-in when `VITE_CLERK_PUBLISHABLE_KEY` is set; open access otherwise.
 - **"José" wake word**: during a run the app listens (Web Speech API, Chrome) and whatever you say after "José" is answered out loud — rain, breathing, cramps, pace, motivation are matched to coach answers in `src/advice.ts`; anything else gets a generic Mourinho reply. Listening pauses while he is talking.
-- **Coach face**: a reaction picture matched to the coach's mood. Bundled original illustrations by default; set `VITE_GIPHY_API_KEY` to pull real Mourinho reaction GIFs from Giphy instead (searched per mood, never stored in the repo).
+- **Coach face**: a reaction photo matched to the coach's mood (`src/coachImage.ts`) — headphones off when you slow down, asleep at the desk when you skip a day, finger to the lips on a streak.
 - **Streaks**: daily check-ins, streak/best/total counters (localStorage), mood-based coach messages.
 
 ## Setup
